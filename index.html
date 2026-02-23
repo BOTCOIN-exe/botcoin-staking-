@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>BOTCOIN Staking Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 50px; }
+        .card { background: #2a2a2a; padding: 20px; border-radius: 15px; display: inline-block; width: 350px; }
+        button { background: #f39c12; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin: 10px 0; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+    </style>
+</head>
+<body>
+
+    <h1>BOTCOIN PRO DASHBOARD</h1>
+    <div class="card">
+        <p id="wallet">Status: Belum Connect</p>
+        <button onclick="connectWallet()">Connect MetaMask</button>
+        <hr>
+        <h3>Staking Tempo</h3>
+        <input type="number" id="amount" placeholder="Jumlah TEMPO (Jutaan)">
+        <button onclick="approveTempo()">1. Approve TEMPO</button>
+        <button onclick="stakeTempo()">2. Stake Sekarang</button>
+        <hr>
+        <h3>Hadiah</h3>
+        <button onclick="claimReward()">Ambil BOTCOIN (Claim)</button>
+    </div>
+
+    <script>
+        const botcAddress = "0xbeB14bcd26F95e0E74c2c824f31977570769a4c1";
+        const tempoAddress = "0x065c01edCF6b6032E70DF1517Fa34EC6504782a1";
+        const abi = ["function approve(address,uint256) returns (bool)", "function stakeTempo(uint256)", "function claimReward()"];
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                document.getElementById('wallet').innerText = "Status: Terhubung";
+            }
+        }
+
+        async function approveTempo() {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const tempoContract = new ethers.Contract(tempoAddress, abi, signer);
+            const amount = ethers.utils.parseEther(document.getElementById('amount').value);
+            await tempoContract.approve(botcAddress, amount);
+            alert("Approve Berhasil!");
+        }
+
+        async function stakeTempo() {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const botcContract = new ethers.Contract(botcAddress, abi, signer);
+            const amount = ethers.utils.parseEther(document.getElementById('amount').value);
+            await botcContract.stakeTempo(amount);
+            alert("Staking Berhasil!");
+        }
+
+        async function claimReward() {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const botcContract = new ethers.Contract(botcAddress, abi, signer);
+            await botcContract.claimReward();
+            alert("Reward Diklaim!");
+        }
+    </script>
+</body>
+</html>
